@@ -3,6 +3,7 @@ var STORIES = [{"id":1,"title":"Nuclear Missiles in Wisconsin","year":1958,"era"
 /* ---------- CONFIG ---------- */
 var SITE = "wisconsinhistoryunlocked.com";
 var SHARE_PATH = "/timeline-shuffle"; // Webflow page slug (the hub links here too)
+var HUB_PATH = "/daily";           // Daily Games hub page
 var LAUNCH = "2026-11-10";          // Puzzle No. 1 date (Central time)
 var MAX = 4;                        // tries per puzzle
 var N = 5;                          // cards per puzzle
@@ -310,6 +311,9 @@ $("tsMclose").addEventListener("click", closeModal);
 $("tsModal").addEventListener("click", function(e){ if (e.target===this) closeModal() });
 document.addEventListener("keydown", function(e){ if (e.key==="Escape" && $("tsModal").classList.contains("show")) closeModal() });
 
+// Hub links: relative on the live site, full address anywhere else (e.g. the prototype)
+(function(){ var h=location.hostname, on=h===SITE||h.slice(-SITE.length-1)==="."+SITE, url=(on?"":"https://"+SITE)+HUB_PATH;
+  ["tsBack","tsHub"].forEach(function(id){ var a=$(id); if(!a) return; a.href=url; if(!on){a.target="_blank";a.rel="noopener"} }) })();
 $("tsGo").addEventListener("click", check);
 // Testing links are optional: the game still runs after their div is deleted
 if ($("tsPrev")) $("tsPrev").addEventListener("click", function(){start(n-1)});
