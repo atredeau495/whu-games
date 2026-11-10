@@ -50,6 +50,7 @@ function heat(mi){return mi===0?"#2F6B3A":mi<=40?"#C9A227":mi<=100?"#C98A3A":mi<
 // --- storage (optional; game works without it) ---
 function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function whuTrack(name,p){try{window.dataLayer=window.dataLayer||[];window.dataLayer.push(Object.assign({event:name},p));if(typeof window.gtag==="function")window.gtag("event",name,p);var u=window.WHU_TRACK_URL;if(u&&navigator.sendBeacon)navigator.sendBeacon(u,JSON.stringify(Object.assign({event:name,ts:new Date().toISOString()},p)))}catch(e){}}
 
 // --- state ---
 var today = dayNum(centralDate(new Date()));
@@ -117,7 +118,7 @@ function guess(){
   if (state.guesses.some(function(g){return g.toLowerCase()===c.name.toLowerCase()})){ $("err").textContent = "Already guessed "+c.name+"."; return }
   state.guesses.push(c.name);
   if (isAns(c.name)){ state.over=true; state.won=true } else if (state.guesses.length>=MAX) state.over=true;
-  if (state.over) recordStats();
+  if (state.over){ recordStats(); state.share = shareText(); whuTrack("whu_game_complete",{game:"wiw",puzzle:n+1,won:state.won,tries:state.guesses.length,hints:state.hints||0}); }
   save("wiw-day-"+n, state);
   selected = null; $("inp").value = ""; $("err").textContent = "";
   render();
@@ -144,7 +145,7 @@ function showReveal(){
 
 function shareText(){
   var rows = state.guesses.map(function(g){var c=byName[g.toLowerCase()],a=nearest(c),mi=isAns(c.name)?0:miles(c,a);return square(mi)+(mi===0?"🎯":arrow(c,a))});
-  return "Where in Wisconsin? No. "+(n+1)+" — "+(state.won?state.guesses.length:"X")+"/"+MAX+(state.hints?" "+"💡".repeat(state.hints):"")+"\n"+rows.join(" ")+"\n"+SITE+"/play";
+  return "Where in Wisconsin? No. "+(n+1)+" — "+(state.won?state.guesses.length:"X")+"/"+MAX+(state.hints?" "+"💡".repeat(state.hints):"")+"\n"+rows.join(" ")+"\n"+SITE+"/where-in-wisconsin";
 }
 $("share").addEventListener("click",function(){
   var t = shareText();
