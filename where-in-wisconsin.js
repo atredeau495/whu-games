@@ -50,7 +50,7 @@ function heat(mi){return mi===0?"#2F6B3A":mi<=40?"#C9A227":mi<=100?"#C98A3A":mi<
 // --- storage (optional; game works without it) ---
 function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-function whuTrack(name,p){try{window.dataLayer=window.dataLayer||[];window.dataLayer.push(Object.assign({event:name},p));if(typeof window.gtag==="function")window.gtag("event",name,p);var u=window.WHU_TRACK_URL;if(u&&navigator.sendBeacon)navigator.sendBeacon(u,JSON.stringify(Object.assign({event:name,ts:new Date().toISOString()},p)))}catch(e){}}
+function whuTrack(name,p){try{window.dataLayer=window.dataLayer||[];window.dataLayer.push(Object.assign({event:name},p));if(typeof window.gtag==="function")window.gtag("event",name,p);var u=window.WHU_TRACK_URL;if(u&&navigator.sendBeacon)navigator.sendBeacon(u,JSON.stringify(Object.assign({event:name,ts:new Date().toISOString()},p)))}catch(e){}}function whuTrack(name,p){try{window.dataLayer=window.dataLayer||[];window.dataLayer.push(Object.assign({event:name},p));if(typeof window.gtag==="function")window.gtag("event",name,p);var u=window.WHU_TRACK_URL;if(u&&navigator.sendBeacon)navigator.sendBeacon(u,JSON.stringify(Object.assign({event:name,ts:new Date().toISOString()},p)))}catch(e){}}
 
 // --- state ---
 var today = dayNum(centralDate(new Date()));
