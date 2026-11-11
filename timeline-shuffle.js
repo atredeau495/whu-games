@@ -218,7 +218,7 @@ function render(){
   state.tries.forEach(function(t,k){
     var inPlace = t.filter(function(id,i){return id===ans[i]}).length, li = document.createElement("li");
     if (inPlace===N) li.className = "win";
-    li.innerHTML = "<span>Try "+(k+1)+"</span><span class='sqs'>"+t.map(function(id){return sq(dist(t,id))}).join("")+"</span><span class='mi'>"+(inPlace===N?"Solved!":inPlace+" of "+N+" in place")+"</span>";
+    li.innerHTML = "<span class='k'>Try "+(k+1)+"</span><span class='sqs'>"+t.map(function(id){return sq(dist(t,id))}).join("")+"</span><span class='mi'>"+(inPlace===N?"Solved!":inPlace+" of "+N+" in place")+"</span>";
     ol.appendChild(li);
   });
   var left = MAX-state.tries.length;
