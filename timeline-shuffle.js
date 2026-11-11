@@ -90,7 +90,7 @@ var n, ans, state, els = {}, drag = null, GAP = 8;
 function key(){return "wts-day-"+n}
 function locked(i){ return state.over || state.pins.indexOf(i)>=0 || state.tries.some(function(t){return t[i]===ans[i]}) }
 function dist(t,id){ return Math.abs(t.indexOf(id) - ans.indexOf(id)) }
-function sq(d){ return d===0?"🟩":d===1?"🟨":d===2?"🟧":"🟥" }
+function sq(d){ return d===0?"🟩":d<=2?"🟨":"🟥" }
 function unlockedSlots(){ var u=[]; for(var i=0;i<N;i++) if(!locked(i)) u.push(i); return u }
 
 function start(num){
