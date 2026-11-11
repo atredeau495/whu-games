@@ -4,7 +4,6 @@
 var SITE = "wisconsinhistoryunlocked.com";
 var SHARE_PATH = "/county-silhouette";                              // page the game lives on (used in the share text)
 var LAUNCH = "2026-11-10";                               // Puzzle No. 1 date (Central time)
-var NEWSLETTER_URL = "https://wisconsinhistoryunlocked.com";
 var IDEA_ENDPOINT = "";   // form service URL for story ideas, e.g. "https://formspree.io/f/abcd1234" (blank = demo mode, nothing is sent)
 var HUB_PATH = "/daily";                                 // WHU Daily Games hub page
 var SEED = 1848;                                         // change to reshuffle the whole schedule
@@ -207,8 +206,8 @@ var covered = {}; STORIES.forEach(function(s){ s.counties.forEach(function(c){ c
 function el(tag, cls, text){ var e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e }
 function storyCard(s){
   var d = el("div","story");
-  d.appendChild(el("div","t",s.title));
   d.appendChild(el("div","y", s.year>=1600 ? String(s.year) : s.era.replace(/\s*\(.*\)/,"")));
+  d.appendChild(el("div","t",s.title));
   if (s.teaser) d.appendChild(el("p",null,s.teaser));
   var w = el("div","wbox"); w.appendChild(el("div","wl","Watch the Video"));
   var pl = el("div","pl"), L = s.links||{};
@@ -251,8 +250,9 @@ function ideaForm(){
 function renderStories(){
   var box = $("stories"); box.innerHTML = "";
   var list = STORIES.filter(function(s){return s.counties.indexOf(ans.name)>=0}).sort(function(a,b){return a.year-b.year});
-  box.appendChild(el("div","sub", list.length ? list.length+(list.length===1?" story":" stories")+" from" : "Stories from"));
-  box.appendChild(el("h3",null, ans.name+" County"));
+  box.appendChild(el("p","sub", list.length ? list.length+(list.length===1?" story":" stories")+" from the archives" : "From the archives"));
+  var hd = el("h3","sh"); hd.appendChild(document.createTextNode(ans.name+" County ")); hd.appendChild(el("em",null,"Stories")); box.appendChild(hd);
+  box.appendChild(el("div","rule"));
   if (!list.length){
     box.appendChild(el("div","none","No stories from this county yet. Know one? Share it with me!"));
     box.appendChild(ideaForm());
@@ -280,7 +280,6 @@ $("share").addEventListener("click",function(){
   var t = shareText();
   try { navigator.clipboard.writeText(t).then(function(){$("copied").textContent="Copied! Paste it on Facebook or in a text."},function(){$("copied").textContent=t}) } catch(e){ $("copied").textContent=t }
 });
-$("news").href = NEWSLETTER_URL;
 var onSite = /(^|\.)wisconsinhistoryunlocked\.com$/.test(location.hostname);
 [].forEach.call(root.querySelectorAll(".hub-link"), function(a){ if (onSite) a.href = HUB_PATH; else { a.href = "https://"+SITE+HUB_PATH; a.target = "_blank"; a.rel = "noopener" } });
 
