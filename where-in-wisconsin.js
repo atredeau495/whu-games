@@ -217,9 +217,7 @@ document.addEventListener("keydown", function(e){ if (e.key === "Escape" && $("m
 $("go").addEventListener("click",guess);
 $("inp").addEventListener("keydown",function(e){ if(e.key==="Enter") guess() });
 $("inp").addEventListener("input",function(){ var c=byName[norm(this.value)]; if(c) select(c.name) });
-if ($("prevDay")) $("prevDay").addEventListener("click",function(){start(n-1)});
-if ($("nextDay")) $("nextDay").addEventListener("click",function(){start(n+1)});
-if ($("reset")) $("reset").addEventListener("click",function(){try{localStorage.removeItem("wiw-day-"+n)}catch(e){} start(n)});
+[].forEach.call(document.querySelectorAll("#wiw .proto"), function(p){ p.remove() });   // no testing links on the live site
 
 start(today);
 })();
