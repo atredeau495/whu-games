@@ -4,7 +4,9 @@
 var SITE = "wisconsinhistoryunlocked.com";
 var SHARE_PATH = "/county-silhouette";                              // page the game lives on (used in the share text)
 var LAUNCH = "2026-11-10";                               // Puzzle No. 1 date (Central time)
-var IDEA_ENDPOINT = "";   // form service URL for story ideas, e.g. "https://formspree.io/f/abcd1234" (blank = demo mode, nothing is sent)
+// Story ideas go to the same Google Apps Script as the score log (window.WHU_TRACK_URL, set once in
+// Webflow's site-wide head code). It saves them to the "Story Ideas" tab and emails Adam.
+function ideaEndpoint(){ return window.WHU_IDEA_URL || window.WHU_TRACK_URL || "" }
 var HUB_PATH = "/daily";                                 // WHU Daily Games hub page
 var SEED = 1848;                                         // change to reshuffle the whole schedule
 var MAX = 4, SHOW_FIRST = 6;
@@ -242,23 +244,27 @@ function ideaForm(){
   f.innerHTML =
     '<label for="wcs-idea">Your '+ans.name+' County story idea</label>'+
     '<textarea id="wcs-idea" name="idea" rows="4" maxlength="1500" placeholder="A person, place, event or legend from '+ans.name+' County…"></textarea>'+
-    '<div class="two"><input name="name" placeholder="Your name (optional)" maxlength="80" aria-label="Your name (optional)">'+
-    '<input name="email" type="email" placeholder="Email, if I can follow up (optional)" maxlength="120" aria-label="Email (optional)"></div>'+
-    '<input name="_gotcha" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">'+
+    '<div class="two"><input name="name" placeholder="Your name" maxlength="80" aria-label="Your name" required>'+
+    '<input name="email" type="email" placeholder="Your email" maxlength="120" aria-label="Your email" required></div>'+
+    '<input name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">'+
     '<div class="irow"><span class="imsg" role="status"></span><button type="submit">Send Story Idea</button></div>';
   var msg = f.querySelector(".imsg"), btn = f.querySelector("button");
   f.addEventListener("submit", function(e){
     e.preventDefault();
     var idea = f.idea.value.trim(), em = f.email.value.trim();
-    if (idea.length < 10){ msg.textContent = "Tell me a little more about the story."; f.idea.focus(); return }
-    if (em && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ msg.textContent = "That email doesn't look right."; f.email.focus(); return }
-    if (f._gotcha.value) return;
-    var data = new FormData(f); data.append("county", ans.name+" County"); data.append("puzzle", "County Silhouette No. "+(n+1)); data.append("_subject", "Story idea: "+ans.name+" County");
-    function ok(){ save("wcs-idea-"+n, true); f.innerHTML = ""; f.appendChild(el("div","thanks","Thanks! Your "+ans.name+" County story idea is in."+(IDEA_ENDPOINT?"":" (Prototype: nothing was actually sent.)"))) }
-    if (!IDEA_ENDPOINT){ ok(); return }
+    var nm = f.querySelector('[name="name"]').value.trim();
+    if (!idea){ msg.textContent = "Please share your story idea."; f.idea.focus(); return }
+    if (!nm){ msg.textContent = "Please add your name."; f.querySelector('[name="name"]').focus(); return }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){ msg.textContent = em ? "That email doesn't look right." : "Please add your email."; f.email.focus(); return }
+    if (f.website.value) return;                                    // spam trap
+    var url = ideaEndpoint();
+    var data = {event:"story_idea", county:ans.name+" County", puzzle:"County Silhouette No. "+(n+1), idea:idea,
+                name:nm, email:em, source:"County Silhouette", website:""};
+    function ok(){ save("wcs-idea-"+n, true); f.innerHTML = ""; f.appendChild(el("div","thanks","Thanks! Your "+ans.name+" County story idea is in."+(url?"":" (Preview: nothing was actually sent.)"))) }
+    if (!url){ ok(); return }
     btn.disabled = true; msg.textContent = "Sending…";
-    fetch(IDEA_ENDPOINT, {method:"POST", body:data, headers:{Accept:"application/json"}})
-      .then(function(r){ if (r.ok) ok(); else throw 0 })
+    fetch(url, {method:"POST", mode:"no-cors", body:JSON.stringify(data)})
+      .then(ok)
       .catch(function(){ btn.disabled = false; msg.textContent = "Couldn't send. Please try again in a minute." });
   });
   return f;
@@ -308,12 +314,7 @@ function tick(){
 }
 setInterval(function(){ if ($("reveal").classList.contains("show")) tick() }, 1000);
 
-// prototype-only testing links (absent in the Webflow embed)
-if ($("prev")){
-  $("prev").addEventListener("click",function(){start(n-1)});
-  $("nextday").addEventListener("click",function(){start(n+1)});
-  $("reset").addEventListener("click",function(){try{localStorage.removeItem(sk())}catch(e){} start(n)});
-}
+[].forEach.call(root.querySelectorAll(".proto"), function(p){ p.remove() });   // no testing links on the live site
 start(today);
 }
 if (document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
