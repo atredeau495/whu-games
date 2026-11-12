@@ -47,6 +47,11 @@ function buildSchedule(upto, STORIES){
 }
 function storyFor(n){ return buildSchedule(n, STORIES)[n] }
 
+// Daily Games hub: lets the hub page look up a past day's answer ("Yesterday's answers").
+window.WHU_ANSWERS = window.WHU_ANSWERS || {};
+window.WHU_ANSWERS.wiw = function(k){ var s = storyFor(k); return s && {id:s.id, title:s.title, year:s.year, era:s.era, counties:s.counties.slice(), links:s.links||{}} };
+if (!document.getElementById("wiw")) return;   // loaded by the hub only for the answer lookup
+
 // --- geo ---
 function miles(a,b){var R=3958.8,t=Math.PI/180,dLa=(b.lat-a.lat)*t,dLo=(b.lon-a.lon)*t;var h=Math.sin(dLa/2)**2+Math.cos(a.lat*t)*Math.cos(b.lat*t)*Math.sin(dLo/2)**2;return Math.round(2*R*Math.asin(Math.sqrt(h)))}
 function arrow(a,b){var t=Math.PI/180,y=Math.sin((b.lon-a.lon)*t)*Math.cos(b.lat*t),x=Math.cos(a.lat*t)*Math.sin(b.lat*t)-Math.sin(a.lat*t)*Math.cos(b.lat*t)*Math.cos((b.lon-a.lon)*t);var br=(Math.atan2(y,x)/t+360)%360;return ["⬆️","↗️","➡️","↘️","⬇️","↙️","⬅️","↖️"][Math.round(br/45)%8]}
@@ -63,6 +68,8 @@ var today = dayNum(centralDate(new Date()));
 var n = today, story, answers, state, selected = null;
 function nearest(c){var b=answers[0],bm=1e9;answers.forEach(function(a){var m=miles(c,a);if(m<bm){bm=m;b=a}});return b}
 function isAns(name){return answers.some(function(a){return a.name===name})}
+// A missed puzzle keeps its answer secret until the next day (it's revealed on the Daily Games hub).
+function secret(){ return state.over && !state.won && n >= today }
 function ansLabel(){return answers.map(function(a){return a.name}).join(" / ")+(answers.length>1?" Counties":" County")}
 
 // --- build map ---
@@ -108,13 +115,13 @@ function render(){
   var H = ["Era: "+story.era, (answers.length>1?"One answer starts with “":"County starts with “")+answers[0].name[0]+"”"];
   var LBL = ["💡 Reveal hint: era", "💡 Reveal hint: first letter"];
   H.forEach(function(text, i){
-    if (i < used || state.over){ var sp=document.createElement("span"); sp.textContent=text; hb.appendChild(sp) }
-    else if (i === used){ var bt=document.createElement("button"); bt.className="hbtn"; bt.type="button"; bt.textContent=LBL[i];
+    if (i < used || (state.over && !secret())){ var sp=document.createElement("span"); sp.textContent=text; hb.appendChild(sp) }
+    else if (i === used && !state.over){ var bt=document.createElement("button"); bt.className="hbtn"; bt.type="button"; bt.textContent=LBL[i];
       bt.addEventListener("click", function(){ state.hints = used+1; save("wiw-day-"+n, state); render() }); hb.appendChild(bt) }
   });
   $("left").textContent = state.over ? "" : (MAX-state.guesses.length)+" guess"+(MAX-state.guesses.length===1?"":"es")+" left";
   $("inp").disabled = $("go").disabled = state.over;
-  if (state.over) { answers.forEach(function(a){paths[a.name].classList.add("ans")}); showReveal(); } else $("reveal").classList.remove("show");
+  if (state.over) { if (!secret()) answers.forEach(function(a){paths[a.name].classList.add("ans")}); showReveal(); } else $("reveal").classList.remove("show");
 }
 
 function guess(){
@@ -138,11 +145,18 @@ function recordStats(){
 }
 
 function showReveal(){
+  if (secret()){
+    $("res").textContent = "Not this time";
+    $("rtitle").textContent = "Come back tomorrow to see the answer";
+    $("rmeta").textContent = "Yesterday's answers are posted on the Daily Games page.";
+    $("watch").style.display = "none";
+  } else {
   $("res").textContent = state.won ? "Solved in "+state.guesses.length+" of "+MAX : "The answer was";
   $("rtitle").textContent = story.title;
   $("rmeta").textContent = ansLabel() + " · " + (story.year>=1600 ? story.year : story.era);
   var hasVid = story.links && Object.keys(story.links).some(function(k){ return story.links[k] });
   $("watch").style.display = hasVid ? "" : "none";
+  }
   
   var s = load("wiw-stats",{played:0,wins:0,streak:0,best:0});
   $("stats").innerHTML = [["Played",s.played],["Win %",s.played?Math.round(100*s.wins/s.played):0],["Streak",s.streak],["Best",s.best]]
