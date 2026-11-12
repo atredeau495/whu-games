@@ -336,10 +336,7 @@ document.addEventListener("keydown", function(e){ if (e.key==="Escape" && $("tsM
 (function(){ var h=location.hostname, on=h===SITE||h.slice(-SITE.length-1)==="."+SITE, url=(on?"":"https://"+SITE)+HUB_PATH;
   ["tsBack","tsHub"].forEach(function(id){ var a=$(id); if(!a) return; a.href=url; if(!on){a.target="_blank";a.rel="noopener"} }) })();
 $("tsGo").addEventListener("click", check);
-// Testing links are optional: the game still runs after their div is deleted
-if ($("tsPrev")) $("tsPrev").addEventListener("click", function(){start(n-1)});
-if ($("tsNextDay")) $("tsNextDay").addEventListener("click", function(){start(n+1)});
-if ($("tsReset")) $("tsReset").addEventListener("click", function(){try{localStorage.removeItem(key())}catch(e){} start(n)});
+[].forEach.call(document.querySelectorAll("#wts .proto"), function(p){ p.remove() });   // no testing links on the live site
 window.addEventListener("resize", function(){ if(!drag) layout() });
 try{ document.fonts.ready.then(function(){ if(!drag) layout() }) }catch(e){}
 
