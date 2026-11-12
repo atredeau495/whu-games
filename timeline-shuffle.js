@@ -79,6 +79,11 @@ function puzzleFor(n){
   return {ans:ans, start:start};
 }
 
+// Daily Games hub: lets the hub page look up a past day's answer ("Yesterday's answers").
+window.WHU_ANSWERS = window.WHU_ANSWERS || {};
+window.WHU_ANSWERS.wts = function(k){ return puzzleFor(k).ans.map(function(id){ var s = BYID[id]; return {id:s.id, title:s.title, year:s.year, links:s.links||{}, marker:!!s.marker} }) };
+if (!document.getElementById("wts")) return;   // loaded by the hub only for the answer lookup
+
 // --- storage (optional; game works without it) ---
 function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
@@ -88,6 +93,8 @@ function whuTrack(name,p){try{window.dataLayer=window.dataLayer||[];window.dataL
 var today = dayNum(centralDate(new Date()));
 var n, ans, state, els = {}, drag = null, GAP = 8;
 function key(){return "wts-day-"+n}
+// A missed puzzle keeps the correct order secret until the next day (it's revealed on the Daily Games hub).
+function secret(){ return state.over && !state.won && n >= today }
 function locked(i){ return state.over || state.pins.indexOf(i)>=0 || state.tries.some(function(t){return t[i]===ans[i]}) }
 function dist(t,id){ return Math.abs(t.indexOf(id) - ans.indexOf(id)) }
 function sq(d){ return d===0?"🟩":d<=2?"🟨":"🟥" }
@@ -202,7 +209,7 @@ function renderHints(){
 
 // --- render ---
 function render(){
-  if (state.over) state.cur = ans.slice();
+  if (state.over && !secret()) state.cur = ans.slice();
   var last = state.tries[state.tries.length-1];
   state.cur.forEach(function(id,i){
     var el = els[id], s = BYID[id], lk = locked(i);
@@ -215,8 +222,8 @@ function render(){
     var canUp=false, canDn=false; for(var a=i-1;a>=0;a--) if(!locked(a)){canUp=true;break} for(var b=i+1;b<N;b++) if(!locked(b)){canDn=true;break}
     up.disabled = lk || !canUp; dn.disabled = lk || !canDn;
     var x = el.querySelector(".xtra"); x.innerHTML = "";
-    if (state.over){ var y=document.createElement("span"); y.className="yr"; y.textContent=s.year; x.appendChild(y) }
-    if (state.hints>=1 || state.over){ var c=document.createElement("span"); c.className="chip"; c.textContent=eraOf(s.year); x.appendChild(c) }
+    if (state.over && !secret()){ var y=document.createElement("span"); y.className="yr"; y.textContent=s.year; x.appendChild(y) }
+    if (state.hints>=1 || (state.over && !secret())){ var c=document.createElement("span"); c.className="chip"; c.textContent=eraOf(s.year); x.appendChild(c) }
   });
   layout();
   renderHints();
@@ -254,10 +261,16 @@ function recordStats(){
 }
 
 function showReveal(){
+  var h2 = $("tsReveal").querySelector("h2"), tl = $("tsTl"); tl.innerHTML = "";
+  if (secret()){
+    $("tsRes").textContent = "Not this time";
+    if (h2) h2.textContent = "Come back tomorrow to see the answer";
+    $("tsMeta").textContent = "Yesterday's answers are posted on the Daily Games page.";
+  } else {
+  if (h2) h2.textContent = "Today's Timeline";
   $("tsRes").textContent = state.won ? "Solved in "+state.tries.length+" of "+MAX : "The correct order";
   var a = BYID[ans[0]].year, b = BYID[ans[N-1]].year;
   $("tsMeta").textContent = a+" – "+b+" · "+(b-a)+" years of Wisconsin history";
-  var tl = $("tsTl"); tl.innerHTML = "";
   ans.forEach(function(id){
     var s = BYID[id], li = document.createElement("li");
     var hasVideo = s.links && Object.keys(s.links).length;
@@ -267,6 +280,7 @@ function showReveal(){
       btn.addEventListener("click",function(){openModal(s,btn)}); })(li.querySelector(".watch")); }
     tl.appendChild(li);
   });
+  }
   var st = load("wts-stats",{played:0,wins:0,streak:0,best:0});
   $("tsStats").innerHTML = [["Played",st.played],["Win %",st.played?Math.round(100*st.wins/st.played):0],["Streak",st.streak],["Best",st.best]]
     .map(function(x){return "<div><b>"+x[1]+"</b><small>"+x[0]+"</small></div>"}).join("");
