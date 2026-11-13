@@ -49,7 +49,7 @@ function storyFor(n){ return buildSchedule(n, STORIES)[n] }
 
 // Daily Games hub: lets the hub page look up a past day's answer ("Yesterday's answers").
 window.WHU_ANSWERS = window.WHU_ANSWERS || {};
-window.WHU_ANSWERS.wiw = function(k){ var s = storyFor(k); return s && {id:s.id, title:s.title, year:s.year, era:s.era, counties:s.counties.slice(), links:s.links||{}} };
+window.WHU_ANSWERS.wiw = function(k){ var s = storyFor(k); return s && {id:s.id, title:s.title, year:s.year, era:s.era, teaser:s.teaser||"", counties:s.counties.slice(), links:s.links||{}} };
 if (!document.getElementById("wiw")) return;   // loaded by the hub only for the answer lookup
 
 // --- geo ---
