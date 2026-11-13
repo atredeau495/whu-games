@@ -30,7 +30,8 @@ function _cycle(k){
 function countyNameFor(n){ var L = COUNTIES.length; return _cycle(Math.floor(n/L))[n%L] }
 window.WHU_ANSWERS = window.WHU_ANSWERS || {};
 window.WHU_ANSWERS.wcs = function(k){ var name = countyNameFor(k);
-  return {county:name, stories: STORIES.filter(function(s){return s.counties.indexOf(name)>=0}).sort(function(a,b){return a.year-b.year})
+  var c = _byName[name];
+  return {county:name, shape:{d:c.d, bb:c.bb.slice()}, stories: STORIES.filter(function(s){return s.counties.indexOf(name)>=0}).sort(function(a,b){return a.year-b.year})
     .map(function(s){return {id:s.id, title:s.title, year:s.year, links:s.links||{}}})} };
 
 function init(){
