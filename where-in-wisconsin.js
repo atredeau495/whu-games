@@ -105,7 +105,7 @@ function render(){
   state.guesses.forEach(function(g){
     var c = byName[g.toLowerCase()], answer = nearest(c), mi = isAns(c.name)?0:miles(c,answer), li = document.createElement("li");
     if (mi===0) li.className="win";
-    li.innerHTML = "<span></span><span class='mi'>"+(mi===0?"Found it!":mi+" mi")+"</span><span class='arr'>"+(mi===0?"🎯":arrow(c,answer))+"</span><span>"+square(mi)+"</span>";
+    li.innerHTML = "<span></span><span class='mi'>"+(mi===0?"Found it!":"")+"</span><span class='arr'>"+(mi===0?"🎯":arrow(c,answer))+"</span><span>"+square(mi)+"</span>";
     li.firstChild.textContent = c.name;
     ol.appendChild(li);
     paths[c.name].style.fill = heat(mi); paths[c.name].classList.add("done");
@@ -218,6 +218,8 @@ $("go").addEventListener("click",guess);
 $("inp").addEventListener("keydown",function(e){ if(e.key==="Enter") guess() });
 $("inp").addEventListener("input",function(){ var c=byName[norm(this.value)]; if(c) select(c.name) });
 [].forEach.call(document.querySelectorAll("#wiw .proto"), function(p){ p.remove() });   // no testing links on the live site
+// No mileage on misses (Adam, 11/15): the how-to says arrow + color instead of distance.
+[].forEach.call(document.querySelectorAll("#wiw .how"), function(h){ h.innerHTML = h.innerHTML.replace(/After each miss[^.<]*\./, "After each miss you’ll see an arrow pointing toward the answer and a color for how close you were: 🟨 within 40 miles, 🟧 within 100, 🟥 farther.") });
 
 start(today);
 })();
