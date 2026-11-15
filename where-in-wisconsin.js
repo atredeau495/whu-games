@@ -55,8 +55,9 @@ if (!document.getElementById("wiw")) return;   // loaded by the hub only for the
 // --- geo ---
 function miles(a,b){var R=3958.8,t=Math.PI/180,dLa=(b.lat-a.lat)*t,dLo=(b.lon-a.lon)*t;var h=Math.sin(dLa/2)**2+Math.cos(a.lat*t)*Math.cos(b.lat*t)*Math.sin(dLo/2)**2;return Math.round(2*R*Math.asin(Math.sqrt(h)))}
 function arrow(a,b){var t=Math.PI/180,y=Math.sin((b.lon-a.lon)*t)*Math.cos(b.lat*t),x=Math.cos(a.lat*t)*Math.sin(b.lat*t)-Math.sin(a.lat*t)*Math.cos(b.lat*t)*Math.cos((b.lon-a.lon)*t);var br=(Math.atan2(y,x)/t+360)%360;return ["⬆️","↗️","➡️","↘️","⬇️","↙️","⬅️","↖️"][Math.round(br/45)%8]}
-function square(mi){return mi===0?"🟩":mi<=40?"🟨":mi<=100?"🟧":"🟥"}
-function heat(mi){return mi===0?"#2F6B3A":mi<=40?"#B3934A":mi<=100?"#B8743A":mi<=180?"#9C4E35":"#6E3E33"}
+var CLOSE = 100;   // miles: 🟨 within this, 🟥 farther (no orange; Adam 11/15)
+function square(mi){return mi===0?"🟩":mi<=CLOSE?"🟨":"🟥"}
+function heat(mi){return mi===0?"#2F6B3A":mi<=CLOSE?"#B3934A":"#9C3D2A"}
 
 // --- storage (optional; game works without it) ---
 function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
@@ -219,7 +220,7 @@ $("inp").addEventListener("keydown",function(e){ if(e.key==="Enter") guess() });
 $("inp").addEventListener("input",function(){ var c=byName[norm(this.value)]; if(c) select(c.name) });
 [].forEach.call(document.querySelectorAll("#wiw .proto"), function(p){ p.remove() });   // no testing links on the live site
 // No mileage on misses (Adam, 11/15): the how-to says arrow + color instead of distance.
-[].forEach.call(document.querySelectorAll("#wiw .how"), function(h){ h.innerHTML = h.innerHTML.replace(/After each miss[^.<]*\./, "After each miss you’ll see an arrow pointing toward the answer and a color for how close you were: 🟨 within 40 miles, 🟧 within 100, 🟥 farther.") });
+[].forEach.call(document.querySelectorAll("#wiw .how"), function(h){ h.innerHTML = h.innerHTML.replace(/After each miss[^.<]*\./, "After each miss you’ll see an arrow pointing toward the answer and a color for how close you were: 🟨 within 100 miles, 🟥 farther.") });
 
 start(today);
 })();
