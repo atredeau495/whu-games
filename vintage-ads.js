@@ -1,4 +1,4 @@
-/* WHU Vintage Ads v1121 - Wisconsin History Unlocked
+/* WHU Vintage Ads v1122 - Wisconsin History Unlocked
    Ads from the Extra Innings notebook. A fresh random set on every page load, no repeats on a page.
    Placeholders: <div data-whu-ad="banner|tiles|rails"></div>  (see setup notes) */
 (function () {
@@ -27,10 +27,10 @@
   + '.whu-ad-row{display:flex;gap:40px;justify-content:center}'
   + '.whu-ad-tiles .whu-ad-row{gap:12px}'
   + '.whu-ad-rail .whu-ad-row{flex-direction:column;gap:12px}'
-  + '.whu-ad-one{background:#FBF7EC;display:flex;flex:none}'
+  + '.whu-ad-one{background:transparent;display:flex;flex:none}'
   + '.whu-ad-b{width:520px;height:116px}'
   + '.whu-ad-t{width:132px;height:250px}'
-  + '.whu-ad-rails{position:absolute;z-index:2;width:170px;background:#FBF7EC}'
+  + '.whu-ad-rails{position:absolute;z-index:2;width:170px;background:transparent}'
   + '.whu-ad-anim.whu-ad-up{opacity:0;transform:translateY(28px)}'
   + '.whu-ad-anim.whu-ad-l{opacity:0;transform:translateX(-48px)}'
   + '.whu-ad-anim.whu-ad-r{opacity:0;transform:translateX(48px)}'
